@@ -23,6 +23,8 @@ services:
     container_name: mqtt_app
     depends_on:
       - mysql
+    networks:
+      - backend   
   ### GRAFANA SERVICE ####
 
   influxdb:

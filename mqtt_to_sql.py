@@ -12,9 +12,9 @@ base_topic = "express/#"
 
 # Configurações do MySQL
 db_config = {
-    "host": "localhost",  # Nome do serviço no Docker Compose
-    "user": "root",
-    "password": "senha_segura",
+    "host": "mysql",  # Nome do serviço no Docker Compose
+    "user": "mysql",
+    "password": "senha_mysql",
     "database": "iot_data"
 }
 
@@ -23,6 +23,7 @@ def save_data(iot_id, data):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
+        print(f"Conectado ao banco de dados, preparando para inserir os dados: {data}")
         cursor.execute('''
             INSERT INTO iot_data (iot_id, credit, salescounter) 
             VALUES (%s, %s, %s)
@@ -33,6 +34,7 @@ def save_data(iot_id, data):
         print(f"Dados salvos no MySQL: {data}")
     except Error as e:
         print(f"Erro ao salvar no banco: {e}")
+
 
 # Função para processar mensagens MQTT
 def on_message(client, userdata, msg):
