@@ -1,0 +1,64 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: senha_segura
+      MYSQL_DATABASE: iot_data
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: senha_mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mqtt_app
+    depends_on:
+      - mysql
+  ### GRAFANA SERVICE ####
+
+  influxdb:
+    image: influxdb:1.7
+    restart: always
+    ports:
+     - "8086:8086"
+    volumes:
+      - grafanadb:/var/lib/influxdb
+    environment:
+      INFLUXDB_DB: actualdb
+  grafana:
+   image: grafana/grafana:11.1.9
+   restart: always
+   ports:
+      - "3000:3000"
+   depends_on:
+      - influxdb
+   volumes:
+      - grafana:/var/lib/grafana
+   environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin  
+     - GF_DATASOURCES_MYSQL_ENABLED=true  
+     - GF_DATASOURCES_MYSQL_HOST=mysql:3306  
+     - GF_DATASOURCES_MYSQL_USER=mysql  
+     - GF_DATASOURCES_MYSQL_PASSWORD=senha_mysql  
+     - GF_DATASOURCES_MYSQL_DATABASE=iot_data 
+   networks:
+      - backend
+
+
+volumes:
+  mysql_data:
+  grafana:
+  grafanadb:
+
+networks:
+  backend:
+    driver: bridge
