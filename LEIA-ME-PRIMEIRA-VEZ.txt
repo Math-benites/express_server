@@ -3,9 +3,18 @@ docker-compose up -d
 
 Após o MySQL estar rodando, conecte-se ao banco para criar a tabela:
 
-## docker exec -it mysql mysql -uroot -psenha_segura
+docker exec -it mysql mysql -uroot -psenha_segura
 
 USE iot_data;
+
+
+CREATE TABLE clients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(20),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
 
 CREATE TABLE iot_data (
@@ -14,6 +23,16 @@ CREATE TABLE iot_data (
     credit INT,
     salescounter INT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE iot_devices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id INT NOT NULL,
+    iot_id VARCHAR(255) NOT NULL UNIQUE,
+    device_name VARCHAR(255),
+    location VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
 SHOW TABLES;

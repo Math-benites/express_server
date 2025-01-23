@@ -12,7 +12,7 @@ base_topic = "express/#"
 
 # Configurações do MySQL
 db_config = {
-    "host": "mysql",  # Nome do serviço no Docker Compose
+    "host": "localhost",  # Nome do serviço no Docker Compose
     "user": "mysql",
     "password": "senha_mysql",
     "database": "iot_data"
@@ -21,19 +21,43 @@ db_config = {
 # Função para salvar os dados no banco MySQL
 def save_data(iot_id, data):
     try:
+        # Conexão com o banco de dados
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        print(f"Conectado ao banco de dados, preparando para inserir os dados: {data}")
+
+        # Verifica se o dispositivo IoT está cadastrado na tabela iot_devices
+        cursor.execute("SELECT id FROM iot_devices WHERE iot_id = %s", (iot_id,))
+        device = cursor.fetchone()
+
+        if not device:
+            print(f"Dispositivo IoT não encontrado: {iot_id}. Certifique-se de que ele está cadastrado.")
+            return
+
+        # Extrai o ID do dispositivo
+        device_id = device[0]
+
+        # Insere os dados de monitoramento na tabela iot_data
+        print(f"Inserindo dados de monitoramento no banco para o dispositivo {iot_id}: {data}")
         cursor.execute('''
             INSERT INTO iot_data (iot_id, credit, salescounter) 
             VALUES (%s, %s, %s)
         ''', (iot_id, data.get("credit", 0), data.get("salescounter", 0)))
+        
+        # Confirma a transação
         conn.commit()
-        cursor.close()
-        conn.close()
-        print(f"Dados salvos no MySQL: {data}")
+
+        print(f"Dados de monitoramento salvos com sucesso no MySQL para o dispositivo {iot_id}: {data}")
+
     except Error as e:
-        print(f"Erro ao salvar no banco: {e}")
+        # Tratamento de erros no MySQL
+        print(f"Erro ao salvar no banco de dados: {e}")
+    
+    finally:
+        # Garante que a conexão com o banco será fechada
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 
 # Função para processar mensagens MQTT
