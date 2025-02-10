@@ -1,0 +1,69 @@
+🗂️ 1. Tabela data_clients
+Armazena os clientes que possuem dispositivos IoT.
+📌 Campos:
+
+id → Identificador único do cliente.
+name → Nome do cliente.
+email → E-mail único do cliente.
+phone → Número de telefone (opcional).
+created_at → Data e hora do cadastro.
+🔗 Relacionamento:
+
+id se relaciona com client_id na tabela link_device (um cliente pode ter vários dispositivos).
+🔗 2. Tabela link_device
+Faz a ligação entre um cliente e um dispositivo IoT, indicando se ele está autorizado.
+📌 Campos:
+
+id → Identificador único da associação.
+client_id → Cliente dono do dispositivo (referência para data_clients).
+hardware_id → Identificação única do dispositivo IoT.
+authorized → 0 (não autorizado) | 1 (autorizado).
+created_at → Data de cadastro da relação.
+🔗 Relacionamento:
+
+client_id é uma chave estrangeira para data_clients(id), garantindo que cada dispositivo esteja vinculado a um cliente.
+hardware_id é único, ou seja, um dispositivo só pode estar vinculado a um cliente por vez.
+O campo authorized serve para permitir ou bloquear o funcionamento do dispositivo.
+📡 3. Tabela data_iot
+Armazena os dados coletados dos dispositivos IoT.
+📌 Campos:
+
+id → Identificador único do registro.
+hardware_id → Dispositivo que enviou os dados.
+credit → Crédito disponível no dispositivo (se aplicável).
+salescounter → Contador de vendas realizadas (se aplicável).
+temperature → Temperatura registrada pelo dispositivo.
+timestamp → Data e hora do registro.
+🔗 Relacionamento:
+
+hardware_id é uma chave estrangeira que referencia link_device(hardware_id), garantindo que os dados sejam apenas de dispositivos cadastrados.
+Se um dispositivo for excluído de link_device, seus dados em data_iot também serão excluídos automaticamente (ON DELETE CASCADE).
+👤 4. Tabela system_user
+Gerencia os usuários do sistema (operadores e administradores).
+📌 Campos:
+
+id → Identificador único do usuário.
+name → Nome do usuário.
+email → E-mail único.
+password_hash → Senha armazenada de forma segura (hash).
+role → 0 (Operador) | 1 (Administrador).
+created_at → Data de criação.
+🔐 Regras de Acesso:
+
+Admin (role = 1) → Pode gerenciar dispositivos e clientes.
+Operador (role = 0) → Pode visualizar dados, mas sem acesso total ao sistema.
+📊 Relacionamentos no Banco
+1️⃣ Clientes (data_clients) podem ter vários dispositivos (link_device).
+2️⃣ Dispositivos (link_device) armazenam dados IoT (data_iot).
+3️⃣ Usuários (system_user) gerenciam e acessam o sistema.
+
+🔍 Exemplo de Consulta para Juntar as Tabelas:
+sql
+Copiar
+Editar
+SELECT c.name AS cliente, d.hardware_id, d.authorized, i.credit, i.salescounter, i.temperature, i.timestamp
+FROM data_clients c
+JOIN link_device d ON c.id = d.client_id
+LEFT JOIN data_iot i ON d.hardware_id = i.hardware_id
+WHERE d.authorized = 1;
+🔹 Esse comando mostra todos os dispositivos autorizados com seus dados coletados.
