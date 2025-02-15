@@ -34,6 +34,7 @@ credit → Crédito disponível no dispositivo (se aplicável).
 salescounter → Contador de vendas realizadas (se aplicável).
 temperature → Temperatura registrada pelo dispositivo.
 timestamp → Data e hora do registro.
+uptime -> tempo do hardware ligado.
 🔗 Relacionamento:
 
 hardware_id é uma chave estrangeira que referencia link_device(hardware_id), garantindo que os dados sejam apenas de dispositivos cadastrados.

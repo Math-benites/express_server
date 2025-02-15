@@ -14,6 +14,4 @@ GRANT ALL PRIVILEGES ON express.* TO 'mysql'@'%';
 FLUSH PRIVILEGES;
 SHOW GRANTS FOR 'mysql'@'%';
 
-
-
 SELECT * FROM express;

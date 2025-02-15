@@ -31,7 +31,7 @@ def connect_db():
 def process_messages(worker_id):
     print(f"⚙️ Worker {worker_id} iniciado.")
     while True:
-        hardware_id, credit, salescounter, temperature = message_queue.get()
+        hardware_id, credit, salescounter, temperature, uptime = message_queue.get()
 
         try:
             connection = connect_db()
@@ -50,9 +50,9 @@ def process_messages(worker_id):
 
                 # Inserir dados na tabela data_iot
                 cursor.execute(""" 
-                    INSERT INTO data_iot (hardware_id, credit, salescounter, temperature)
-                    VALUES (%s, %s, %s, %s)
-                """, (hardware_id, credit, salescounter, temperature))
+                    INSERT INTO data_iot (hardware_id, credit, salescounter, temperature, uptime)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (hardware_id, credit, salescounter, temperature, uptime))
 
                 connection.commit()
                 print(f"✅ Worker {worker_id}: Dados do dispositivo {hardware_id} armazenados com sucesso!")
@@ -77,6 +77,7 @@ def on_message(client, userdata, msg):
         credit = payload.get("credit")
         salescounter = payload.get("salescounter")
         temperature = payload.get("temperature")
+        uptime = payload.get("uptime")  # Adicionado o campo uptime
 
         if not hardware_id:
             print("⚠️ Hardware ID ausente, ignorando mensagem.")
@@ -98,7 +99,8 @@ def check_and_enqueue(payload):
         result = cursor.fetchone()
         
         if result and result["authorized"]:
-            message_queue.put((hardware_id, payload["credit"], payload["salescounter"], payload["temperature"]))
+            # Incluir o uptime na fila
+            message_queue.put((hardware_id, payload["credit"], payload["salescounter"], payload["temperature"], payload["uptime"]))
             print(f"📩 Mensagem do {hardware_id} adicionada à fila.")
         else:
             print(f"⛔ Dispositivo {hardware_id} não autorizado ou não encontrado.")
