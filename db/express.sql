@@ -9,7 +9,7 @@
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
+SET time_zone = "America/Sao_Paulo";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -156,6 +156,7 @@ ALTER TABLE `data_iot`
 --
 ALTER TABLE `link_device`
   ADD CONSTRAINT `link_device_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `data_clients` (`id`) ON DELETE CASCADE;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -1,15 +1,14 @@
-# Use uma imagem base do Python
-FROM python:3.9-slim
+# Usar imagem base do Python
+FROM python:3.11
 
-# Define o diretório de trabalho no contêiner
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Copia o arquivo de requisitos (se necessário) e instala as dependências
-COPY requirements.txt requirements.txt
+# Copiar arquivos do projeto
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código do aplicativo para o contêiner
-COPY mqtt_to_sql.py mqtt_to_sql.py
+COPY mqtt_listener.py ./
 
-# Comando para executar o script
-CMD ["python", "mqtt_to_sql.py"]
+# Comando para rodar o script
+CMD ["python", "mqtt_listener.py"]

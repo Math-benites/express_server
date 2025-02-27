@@ -2,25 +2,29 @@ version: "3.8"
 services:
   mysql:
     image: mysql:8.0
+    restart: always
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: senha_segura
       MYSQL_DATABASE: express
       MYSQL_USER: mysql
       MYSQL_PASSWORD: senha_mysql
+      TZ: America/Sao_Paulo
+
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db/express.sql:/docker-entrypoint-initdb.d/express.sql
     networks:
       - backend
 
-
-  app:
+  express_listener:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: mqtt_app
+    restart: always
     depends_on:
       - mysql
     networks:
