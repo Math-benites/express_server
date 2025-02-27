@@ -19,10 +19,8 @@ services:
     networks:
       - backend
 
-  express_listener:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  receiver_expres:
+    build: ./reciver_express
     container_name: mqtt_app
     restart: always
     depends_on:
@@ -30,6 +28,19 @@ services:
     networks:
       - backend   
   ### GRAFANA SERVICE ####
+  web_frontend:
+    build: ./web_express
+    container_name: flask_app
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+    volumes:
+      - ./web_express:/app
+    networks:
+      - backend    
 
   influxdb:
     image: influxdb:1.7
