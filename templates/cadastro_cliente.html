@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestão de IoT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <h2>Express</h2>
+            <ul>
+                <li><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
+            </ul>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="content">
+            <h1>Cadastro de Cliente</h1>
+            <form method="POST">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="client_name">Representante:</label>
+                        <input type="text" id="client_name" name="client_name" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="client_email">E-mail:</label>
+                        <input type="email" id="client_email" name="client_email" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="client_phone">Telefone:</label>
+                        <input type="text" id="client_phone" name="client_phone">
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="cpf_cnpj">CPF/CNPJ:</label>
+                        <input type="text" id="cpf_cnpj" name="cpf_cnpj" required>
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="address">Endereço:</label>
+                        <input type="text" id="address" name="address">
+                    </div>
+    
+                    <div class="form-group">
+                        <label for="company_name">Nome da Empresa:</label>
+                        <input type="text" id="company_name" name="company_name">
+                    </div>
+    
+                    <div class="button-container">
+                        <button type="submit">Cadastrar Cliente</button>
+                    </div>
+                </div>
+            </form>
+
+            {% if message %}
+                <p>{{ message }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

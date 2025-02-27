@@ -1,0 +1,55 @@
+<!-- templates/listar_clientes.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestão de IoT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <h2>Express</h2>
+            <ul>
+                <li><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
+            </ul>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="content">
+            <div class="header">
+                <h1>Clientes Cadastrados</h1>
+            </div>
+            <table class="client-table">
+                <a href="{{ url_for('cadastro_cliente') }}" class="btn-add">Adicionar Cliente</a>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>E-mail</th>
+                        <th>Telefone</th>
+                        <th>Data de Cadastro</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.company_name }}</td>
+                            <td>{{ cliente.email }}</td>
+                            <td>{{ cliente.phone }}</td>
+                            <td>{{ cliente.created_at }}</td>
+                            <td>
+                                <a href="{{ url_for('editar_cliente', client_id=cliente.id) }}" class="btn-edit">
+                                    ✏️
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
