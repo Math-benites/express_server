@@ -1,0 +1,31 @@
+<!-- templates/confirmar_exclusao.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Exclusão - Gestão de IoT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <h2>Express</h2>
+            <ul>
+                <li><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
+            </ul>
+        </div>
+
+        <!-- Conteúdo Principal -->
+        <div class="content">
+            <h1>Confirmar Exclusão</h1>
+            <p>Tem certeza que deseja excluir o cliente <strong>{{ cliente.name }}</strong>?</p>
+            <form action="{{ url_for('excluir_cliente', client_id=cliente.id) }}" method="POST">
+                <button type="submit" class="btn-confirm">Sim, excluir</button>
+                <a href="{{ url_for('listar_clientes') }}" class="btn-cancel">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

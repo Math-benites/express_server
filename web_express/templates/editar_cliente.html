@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cliente - Gestão de IoT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Menu Lateral -->
+        <div class="sidebar">
+            <h2>Express</h2>
+            <ul>
+                <li><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
+            </ul>
+        </div>
+    
+        <!-- Conteúdo Principal -->
+        <div class="content">
+            <h1>Editar Cliente</h1>
+            <!-- Botão Deletar à Direita -->
+            <a href="{{ url_for('confirmar_exclusao', client_id=cliente.id) }}" class="btn-delete_s1">
+                Deletar
+            </a>
+    <!-- Formulário de Edição do Cliente -->
+<form method="POST">
+    <div class="form-container">
+        <div class="form-group">
+            <label for="client_name">Representante:</label>
+            <input type="text" id="client_name" name="client_name" value="{{ cliente.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="client_email">E-mail:</label>
+            <input type="email" id="client_email" name="client_email" value="{{ cliente.email }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="client_phone">Telefone:</label>
+            <input type="text" id="client_phone" name="client_phone" value="{{ cliente.phone }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="cpf_cnpj">CPF/CNPJ:</label>
+            <input type="text" id="cpf_cnpj" name="cpf_cnpj" value="{{ cliente.cpf_cnpj }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Endereço:</label>
+            <input type="text" id="address" name="address" value="{{ cliente.address }}">
+        </div>
+
+        <div class="form-group">
+            <label for="company_name">Nome da Empresa:</label>
+            <input type="text" id="company_name" name="company_name" value="{{ cliente.company_name }}">
+        </div>
+
+        <div class="button-container">
+            <button type="submit">Salvar</button>
+        </div>
+    </div>
+</form>
+
+            <!-- Adicionar Novo Dispositivo IoT -->
+            <div class="header">
+                <h1>Adicionar Novo Dispositivo IoT</h1>
+            </div>
+            <form method="POST" action="{{ url_for('editar_cliente', client_id=cliente.id) }}">
+                <label for="new_device_id">Hardware ID do Dispositivo:</label>
+                <input type="text" id="new_device_id" name="new_device_id" placeholder="Insira o Hardware ID" required>
+            
+                <label for="authorized">Autorizado:</label>
+                <select id="authorized" name="authorized" required>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select>
+                <p><button type="submit" class="btn-add" name="add_device">Adicionar Dispositivo</button></p>
+            </form>
+
+            <!-- Dispositivos IoT Associados -->
+            <div class="header">
+                <h1>Dispositivos IoT Associados</h1>
+            </div>
+            <table class="client-table">
+                <thead>
+                    <tr>
+                        <th>Hardware ID</th>
+                        <th>Data de Criação</th>
+                        <th>Monitoramento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in linked_devices %}
+                        <tr>
+                            <td>{{ device.hardware_id }}</td>
+                            <td>{{ device.created_at }}</td>
+                            <td>
+                                <!-- Botão Liga/Desliga para autorização -->
+                                <form action="{{ url_for('alternar_autorizacao', client_id=cliente.id, device_id=device.hardware_id) }}" method="GET">
+                                    <button type="submit" class="btn-{{ 'green' if device.authorized == 1 else 'red' }}">
+                                        {{ 'Ligado' if device.authorized == 1 else 'Desligado' }}
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('excluir_dispositivo', client_id=cliente.id, hardware_id=device.hardware_id) }}" method="POST">
+                                    <button type="submit" class="btn-delete">❌</button>
+                                </form>
+                            </td>                            
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+</body>
+</html>
