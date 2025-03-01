@@ -1,15 +1,16 @@
 version: "3.8"
 services:
-  express_server_db:
+  mysql:
     image: mysql:8.0
     restart: always
-    container_name: express_server_db
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: senha_segura
       MYSQL_DATABASE: express
       MYSQL_USER: mysql
       MYSQL_PASSWORD: senha_mysql
       TZ: America/Sao_Paulo
+
     ports:
       - "3306:3306"
     volumes:
@@ -18,25 +19,26 @@ services:
     networks:
       - backend
 
-  express_server_receiver:
+  reciver_express:
     build: ./reciver_express
-    container_name: express_server_receiver
+    container_name: mqtt_app
     restart: always
     depends_on:
-      - express_server_db
+      - mysql
     networks:
       - backend
     environment:
       MQTT_SERVER: mqtt.eclipseprojects.io
       MQTT_PORT: 1883
-      MYSQL_HOST: express_server_db
+      MYSQL_HOST: mysql
       MYSQL_USER: mysql
       MYSQL_PASSWORD: senha_mysql
       MYSQL_DB: express
-
-  express_server_web_front:
+      
+  ### GRAFANA SERVICE ####
+  web_frontend:
     build: ./web_express
-    container_name: express_server_web_front
+    container_name: flask_app
     restart: always
     ports:
       - "5000:5000"
@@ -52,31 +54,30 @@ services:
     image: influxdb:1.7
     restart: always
     ports:
-      - "8086:8086"
+     - "8086:8086"
     volumes:
       - grafanadb:/var/lib/influxdb
     environment:
       INFLUXDB_DB: actualdb
-
   grafana:
-    image: grafana/grafana:11.1.9
-    restart: always
-    ports:
+   image: grafana/grafana:11.1.9
+   restart: always
+   ports:
       - "3000:3000"
-    depends_on:
+   depends_on:
       - influxdb
-    volumes:
+   volumes:
       - grafana:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_DATASOURCES_MYSQL_ENABLED=true
-      - GF_DATASOURCES_MYSQL_HOST=express_server_db:3306
-      - GF_DATASOURCES_MYSQL_USER=mysql
-      - GF_DATASOURCES_MYSQL_PASSWORD=senha_mysql
-      - GF_DATASOURCES_MYSQL_DATABASE=iot_data
-    networks:
+   environment:
+     - GF_SECURITY_ADMIN_PASSWORD=admin  
+     - GF_DATASOURCES_MYSQL_ENABLED=true  
+     - GF_DATASOURCES_MYSQL_HOST=mysql:3306  
+     - GF_DATASOURCES_MYSQL_USER=mysql  
+     - GF_DATASOURCES_MYSQL_PASSWORD=senha_mysql  
+     - GF_DATASOURCES_MYSQL_DATABASE=iot_data 
+   networks:
       - backend
-
+  
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
@@ -84,12 +85,15 @@ services:
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: express_server_db
+      PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: senha_segura
     depends_on:
-      - express_server_db
+      - mysql
     networks:
       - backend
+
+  
+
 
 volumes:
   mysql_data:
