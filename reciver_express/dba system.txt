@@ -59,12 +59,9 @@ Operador (role = 0) → Pode visualizar dados, mas sem acesso total ao sistema.
 3️⃣ Usuários (system_user) gerenciam e acessam o sistema.
 
 🔍 Exemplo de Consulta para Juntar as Tabelas:
-sql
-Copiar
-Editar
-SELECT c.name AS cliente, d.hardware_id, d.authorized, i.credit, i.salescounter, i.temperature, i.timestamp
+
+SELECT i.uptime, i.timestamp
 FROM data_clients c
 JOIN link_device d ON c.id = d.client_id
 LEFT JOIN data_iot i ON d.hardware_id = i.hardware_id
-WHERE d.authorized = 1;
-🔹 Esse comando mostra todos os dispositivos autorizados com seus dados coletados.
+WHERE d.hardware_id = $iot_device;
