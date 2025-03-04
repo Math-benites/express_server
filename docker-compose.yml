@@ -10,7 +10,6 @@ services:
       MYSQL_USER: mysql
       MYSQL_PASSWORD: senha_mysql
       TZ: America/Sao_Paulo
-
     ports:
       - "3306:3306"
     volumes:
@@ -19,15 +18,22 @@ services:
     networks:
       - backend
 
-  receiver_expres:
+  reciver_express:
     build: ./reciver_express
     container_name: mqtt_app
     restart: always
     depends_on:
       - mysql
     networks:
-      - backend   
-  ### GRAFANA SERVICE ####
+      - backend
+    environment:
+      MQTT_SERVER: mqtt.eclipseprojects.io
+      MQTT_PORT: 1883
+      MYSQL_HOST: mysql
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: senha_mysql
+      MYSQL_DB: express
+
   web_frontend:
     build: ./web_express
     container_name: flask_app
@@ -51,23 +57,26 @@ services:
       - grafanadb:/var/lib/influxdb
     environment:
       INFLUXDB_DB: actualdb
+    networks:
+      - backend
+
   grafana:
-   image: grafana/grafana:11.1.9
-   restart: always
-   ports:
+    image: grafana/grafana:11.1.9
+    restart: always
+    ports:
       - "3000:3000"
-   depends_on:
+    depends_on:
       - influxdb
-   volumes:
+    volumes:
       - grafana:/var/lib/grafana
-   environment:
-     - GF_SECURITY_ADMIN_PASSWORD=admin  
-     - GF_DATASOURCES_MYSQL_ENABLED=true  
-     - GF_DATASOURCES_MYSQL_HOST=mysql:3306  
-     - GF_DATASOURCES_MYSQL_USER=mysql  
-     - GF_DATASOURCES_MYSQL_PASSWORD=senha_mysql  
-     - GF_DATASOURCES_MYSQL_DATABASE=iot_data 
-   networks:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DATASOURCES_MYSQL_ENABLED=true
+      - GF_DATASOURCES_MYSQL_HOST=mysql:3306
+      - GF_DATASOURCES_MYSQL_USER=mysql
+      - GF_DATASOURCES_MYSQL_PASSWORD=senha_mysql
+      - GF_DATASOURCES_MYSQL_DATABASE=iot_data
+    networks:
       - backend
   
   phpmyadmin:
@@ -83,8 +92,6 @@ services:
       - mysql
     networks:
       - backend
-
-  
 
 
 volumes:

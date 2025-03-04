@@ -4,20 +4,27 @@ import pymysql
 import queue
 import threading
 import time
+from datetime import datetime
+import os
+
+# Função para obter o horário atual no formato desejado
+def log_with_time(message):
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{current_time}] {message}", flush=True)
 
 # Configurações do MQTT
-mqtt_server = "mqtt.eclipseprojects.io"
-mqtt_port = 1883
-mqtt_user = ""
-mqtt_password = ""
+mqtt_server = os.getenv("MQTT_SERVER", "mqtt.eclipseprojects.io")
+mqtt_port = int(os.getenv("MQTT_PORT", 1883))
+mqtt_user = os.getenv("MQTT_USER", "")
+mqtt_password = os.getenv("MQTT_PASSWORD", "")
 base_topic = "express/#"
 
 # Configuração do MySQL
 db_config = {
-    "host": "localhost",  # Se rodando no Docker, mudar para "mysql"
-    "user": "mysql",
-    "password": "senha_mysql",
-    "database": "express"
+    "host": os.getenv("MYSQL_HOST", "mysql"),  # Usar o nome do serviço MySQL do Docker
+    "user": os.getenv("MYSQL_USER", "mysql"),
+    "password": os.getenv("MYSQL_PASSWORD", "senha_mysql"),
+    "database": os.getenv("MYSQL_DB", "express")
 }
 
 # Criar uma fila para armazenar as mensagens MQTT
@@ -29,7 +36,7 @@ def connect_db():
 
 # Função para processar as mensagens da fila
 def process_messages(worker_id):
-    print(f"⚙️ Worker {worker_id} iniciado.")
+    log_with_time(f"⚙️ Worker {worker_id} iniciado.")
     while True:
         hardware_id, credit, salescounter, temperature, uptime = message_queue.get()
 
@@ -41,11 +48,11 @@ def process_messages(worker_id):
                 result = cursor.fetchone()
 
                 if not result:
-                    print(f"❌ Worker {worker_id}: Dispositivo {hardware_id} não encontrado.")
+                    log_with_time(f"❌ Worker {worker_id}: Dispositivo {hardware_id} não encontrado.")
                     continue
 
                 if not result["authorized"]:
-                    print(f"⛔ Worker {worker_id}: Dispositivo {hardware_id} não autorizado.")
+                    log_with_time(f"⛔ Worker {worker_id}: Dispositivo {hardware_id} não autorizado.")
                     continue
 
                 # Inserir dados na tabela data_iot
@@ -55,10 +62,10 @@ def process_messages(worker_id):
                 """, (hardware_id, credit, salescounter, temperature, uptime))
 
                 connection.commit()
-                print(f"✅ Worker {worker_id}: Dados do dispositivo {hardware_id} armazenados com sucesso!")
+                log_with_time(f"✅ Worker {worker_id}: Dados do dispositivo {hardware_id} armazenados com sucesso!")
 
         except Exception as e:
-            print(f"⚠️ Worker {worker_id}: Erro ao processar mensagem: {e}")
+            log_with_time(f"⚠️ Worker {worker_id}: Erro ao processar mensagem: {e}")
 
         finally:
             connection.close()
@@ -66,8 +73,12 @@ def process_messages(worker_id):
 
 # Callback quando conecta no broker MQTT
 def on_connect(client, userdata, flags, rc):
-    print(f"Conectado ao MQTT Broker! Código de retorno: {rc}")
-    client.subscribe(base_topic)
+    log_with_time(f"Conectado ao MQTT Broker! Código de retorno: {rc}")
+    if rc == 0:
+        client.subscribe(base_topic)
+        log_with_time(f"Subscrição realizada no tópico {base_topic}")
+    else:
+        log_with_time(f"Falha na conexão com o broker MQTT: {rc}")
 
 # Callback quando recebe uma mensagem MQTT
 def on_message(client, userdata, msg):
@@ -80,14 +91,14 @@ def on_message(client, userdata, msg):
         uptime = payload.get("uptime")  # Adicionado o campo uptime
 
         if not hardware_id:
-            print("⚠️ Hardware ID ausente, ignorando mensagem.")
+            log_with_time("⚠️ Hardware ID ausente, ignorando mensagem.")
             return
 
         # Adicionar à fila somente se o dispositivo estiver autorizado
         check_and_enqueue(payload)
 
     except json.JSONDecodeError:
-        print("⚠️ Erro ao decodificar JSON.")
+        log_with_time("⚠️ Erro ao decodificar JSON.")
 
 # Função para adicionar à fila apenas se o dispositivo estiver cadastrado
 def check_and_enqueue(payload):
@@ -101,9 +112,9 @@ def check_and_enqueue(payload):
         if result and result["authorized"]:
             # Incluir o uptime na fila
             message_queue.put((hardware_id, payload["credit"], payload["salescounter"], payload["temperature"], payload["uptime"]))
-            print(f"📩 Mensagem do {hardware_id} adicionada à fila.")
+            log_with_time(f"📩 Mensagem do {hardware_id} adicionada à fila.")
         else:
-            print(f"⛔ Dispositivo {hardware_id} não autorizado ou não encontrado.")
+            log_with_time(f"⛔ Dispositivo {hardware_id} não autorizado ou não encontrado.")
     
     connection.close()
 
