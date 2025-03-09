@@ -60,6 +60,8 @@ Operador (role = 0) → Pode visualizar dados, mas sem acesso total ao sistema.
 
 🔍 Exemplo de Consulta para Juntar as Tabelas:
 
+SELECT hardware_id FROM link_device
+
 SELECT i.uptime, i.timestamp
 FROM data_clients c
 JOIN link_device d ON c.id = d.client_id

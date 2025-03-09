@@ -38,7 +38,7 @@ def connect_db():
 def process_messages(worker_id):
     log_with_time(f"⚙️ Worker {worker_id} iniciado.")
     while True:
-        hardware_id, credit, salescounter, temperature, uptime = message_queue.get()
+        hardware_id, credit, salescounter, temperature, uptime, gelo = message_queue.get()
 
         try:
             connection = connect_db()
@@ -55,11 +55,16 @@ def process_messages(worker_id):
                     log_with_time(f"⛔ Worker {worker_id}: Dispositivo {hardware_id} não autorizado.")
                     continue
 
+                # Verificar se há algum valor ausente ou None, e tratar com valores padrão
+                if any(v is None for v in [hardware_id, credit, salescounter, temperature, uptime, gelo]):
+                    log_with_time(f"⚠️ Dados incompletos para {hardware_id}. Ignorando inserção.")
+                    continue
+
                 # Inserir dados na tabela data_iot
                 cursor.execute(""" 
-                    INSERT INTO data_iot (hardware_id, credit, salescounter, temperature, uptime)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (hardware_id, credit, salescounter, temperature, uptime))
+                    INSERT INTO data_iot (hardware_id, credit, salescounter, temperature, uptime, gelo)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (hardware_id, credit or 0, salescounter or 0, temperature or 0.0, uptime or 0, gelo or 0))
 
                 connection.commit()
                 log_with_time(f"✅ Worker {worker_id}: Dados do dispositivo {hardware_id} armazenados com sucesso!")
@@ -89,6 +94,7 @@ def on_message(client, userdata, msg):
         salescounter = payload.get("salescounter")
         temperature = payload.get("temperature")
         uptime = payload.get("uptime")  # Adicionado o campo uptime
+        gelo = payload.get("gelo") # adicionado o campo gelo
 
         if not hardware_id:
             log_with_time("⚠️ Hardware ID ausente, ignorando mensagem.")
@@ -111,7 +117,7 @@ def check_and_enqueue(payload):
         
         if result and result["authorized"]:
             # Incluir o uptime na fila
-            message_queue.put((hardware_id, payload["credit"], payload["salescounter"], payload["temperature"], payload["uptime"]))
+            message_queue.put((hardware_id, payload["credit"], payload["salescounter"], payload["temperature"], payload["uptime"], payload["gelo"]))
             log_with_time(f"📩 Mensagem do {hardware_id} adicionada à fila.")
         else:
             log_with_time(f"⛔ Dispositivo {hardware_id} não autorizado ou não encontrado.")
