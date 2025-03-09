@@ -5,7 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Cliente - Gestão de IoT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='editar_cliente.css') }}">
-    
+    <style>
+.grafana-container {
+    width: 98%; /* Ocupa quase toda a tela */
+    max-width: 1800px; /* Pode aumentar conforme necessário */
+    height: 700px; /* Aumentei a altura para melhor visualização */
+    margin: 20px auto;
+    text-align: center;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: none;
+}
+
+.grafana-container iframe {
+    width: 100%;
+    height: 650px; /* Aumentei a altura do iframe */
+    border-radius: 8px;
+}
+
+.btn-expand {
+    padding: 12px 18px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.btn-close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -16,52 +61,52 @@
                 <li><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
             </ul>
         </div>
-    
+
         <!-- Conteúdo Principal -->
         <div class="content">
             <h1>Editar Cliente</h1>
-            <!-- Botão Deletar à Direita -->
             <a href="{{ url_for('confirmar_exclusao', client_id=cliente.id) }}" class="btn-delete_s1">
                 Deletar
             </a>
-    <!-- Formulário de Edição do Cliente -->
-<form method="POST">
-    <div class="form-container">
-        <div class="form-group">
-            <label for="client_name">Representante:</label>
-            <input type="text" id="client_name" name="client_name" value="{{ cliente.name }}" required>
-        </div>
 
-        <div class="form-group">
-            <label for="client_email">E-mail:</label>
-            <input type="email" id="client_email" name="client_email" value="{{ cliente.email }}" required>
-        </div>
+            <!-- Formulário de Edição do Cliente -->
+            <form method="POST">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="client_name">Representante:</label>
+                        <input type="text" id="client_name" name="client_name" value="{{ cliente.name }}" required>
+                    </div>
 
-        <div class="form-group">
-            <label for="client_phone">Telefone:</label>
-            <input type="text" id="client_phone" name="client_phone" value="{{ cliente.phone }}" required>
-        </div>
+                    <div class="form-group">
+                        <label for="client_email">E-mail:</label>
+                        <input type="email" id="client_email" name="client_email" value="{{ cliente.email }}" required>
+                    </div>
 
-        <div class="form-group">
-            <label for="cpf_cnpj">CPF/CNPJ:</label>
-            <input type="text" id="cpf_cnpj" name="cpf_cnpj" value="{{ cliente.cpf_cnpj }}" required>
-        </div>
+                    <div class="form-group">
+                        <label for="client_phone">Telefone:</label>
+                        <input type="text" id="client_phone" name="client_phone" value="{{ cliente.phone }}" required>
+                    </div>
 
-        <div class="form-group">
-            <label for="address">Endereço:</label>
-            <input type="text" id="address" name="address" value="{{ cliente.address }}">
-        </div>
+                    <div class="form-group">
+                        <label for="cpf_cnpj">CPF/CNPJ:</label>
+                        <input type="text" id="cpf_cnpj" name="cpf_cnpj" value="{{ cliente.cpf_cnpj }}" required>
+                    </div>
 
-        <div class="form-group">
-            <label for="company_name">Nome da Empresa:</label>
-            <input type="text" id="company_name" name="company_name" value="{{ cliente.company_name }}">
-        </div>
+                    <div class="form-group">
+                        <label for="address">Endereço:</label>
+                        <input type="text" id="address" name="address" value="{{ cliente.address }}">
+                    </div>
 
-        <div class="button-container">
-            <button type="submit">Salvar</button>
-        </div>
-    </div>
-</form>
+                    <div class="form-group">
+                        <label for="company_name">Nome da Empresa:</label>
+                        <input type="text" id="company_name" name="company_name" value="{{ cliente.company_name }}">
+                    </div>
+
+                    <div class="button-container">
+                        <button type="submit">Salvar</button>
+                    </div>
+                </div>
+            </form>
 
             <!-- Adicionar Novo Dispositivo IoT -->
             <div class="header">
@@ -90,6 +135,7 @@
                         <th>Data de Criação</th>
                         <th>Monitoramento</th>
                         <th>Ações</th>
+                        <th>Dashboard</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,7 +144,6 @@
                             <td>{{ device.hardware_id }}</td>
                             <td>{{ device.created_at }}</td>
                             <td>
-                                <!-- Botão Liga/Desliga para autorização -->
                                 <form action="{{ url_for('alternar_autorizacao', client_id=cliente.id, device_id=device.hardware_id) }}" method="GET">
                                     <button type="submit" class="btn-{{ 'green' if device.authorized == 1 else 'red' }}">
                                         {{ 'Ligado' if device.authorized == 1 else 'Desligado' }}
@@ -109,13 +154,41 @@
                                 <form action="{{ url_for('excluir_dispositivo', client_id=cliente.id, hardware_id=device.hardware_id) }}" method="POST">
                                     <button type="submit" class="btn-delete">❌</button>
                                 </form>
-                            </td>                            
+                            </td>
+                            <td>
+                                <button type="button" class="btn-expand" onclick="toggleGrafana('{{ device.hardware_id }}')">
+                                    📊 Expandir
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            
+
+            <!-- Contêiner para exibir o Dashboard -->
+            <div id="grafana-container" class="grafana-container">
+                <button onclick="closeGrafana()" class="btn-close">❌ Fechar</button>
+                <iframe id="grafana-frame" src="" frameborder="0"></iframe>
+            </div>
         </div>
     </div>
+
+    <script>
+        function toggleGrafana(hardwareId) {
+            var container = document.getElementById("grafana-container");
+            var iframe = document.getElementById("grafana-frame");
+
+            if (container.style.display === "none" || iframe.src.indexOf(hardwareId) === -1) {
+                iframe.src = `http://192.168.1.12:3000/d/ceeugo9urwgsgd/query-client?orgId=1&refresh=5s&from=now-3h&to=now&var-iot_device=${hardwareId}&kiosk`;
+                container.style.display = "block";
+            } else {
+                container.style.display = "none";
+            }
+        }
+
+        function closeGrafana() {
+            document.getElementById("grafana-container").style.display = "none";
+        }
+    </script>
 </body>
 </html>
