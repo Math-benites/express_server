@@ -50,6 +50,7 @@ CREATE TABLE `data_iot` (
   `salescounter` int DEFAULT NULL,
   `temperature` float DEFAULT NULL,
   `uptime` int DEFAULT NULL,
+  `gelo` int DEFAULT NULL,
   `timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
