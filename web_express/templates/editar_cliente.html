@@ -27,13 +27,13 @@
 }
 
 .btn-expand {
-    padding: 12px 18px;
+    padding: 8px 12px;
     background: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .btn-close {
@@ -107,27 +107,24 @@
                     </div>
                 </div>
             </form>
-
-            <!-- Adicionar Novo Dispositivo IoT -->
-            <div class="header">
-                <h1>Adicionar Novo Dispositivo IoT</h1>
-            </div>
-            <form method="POST" action="{{ url_for('editar_cliente', client_id=cliente.id) }}">
-                <label for="new_device_id">Hardware ID do Dispositivo:</label>
-                <input type="text" id="new_device_id" name="new_device_id" placeholder="Insira o Hardware ID" required>
-            
-                <label for="authorized">Autorizado:</label>
-                <select id="authorized" name="authorized" required>
-                    <option value="1">Sim</option>
-                    <option value="0">Não</option>
-                </select>
-                <p><button type="submit" class="btn-add" name="add_device">Adicionar Dispositivo</button></p>
-            </form>
-
             <!-- Dispositivos IoT Associados -->
             <div class="header">
                 <h1>Dispositivos IoT Associados</h1>
             </div>
+            <table class="client-table">
+                <thead>
+                    <tr>
+            <form method="POST" action="{{ url_for('editar_cliente', client_id=cliente.id) }}">
+                <th>Hardware ID do Dispositivo: <input type="text" id="new_device_id" name="new_device_id" placeholder="Insira o Hardware ID" required></th>
+                <th>Autorizado:  <select id="authorized" name="authorized" required>
+                    <option value="1">Sim</option>
+                    <option value="0">Não</option>
+                </select></th>
+                <th><button type="submit" class="btn-add" name="add_device">Adicionar Dispositivo</button></th>
+            </form>
+        </tr>
+        </thead>
+        </table>
             <table class="client-table">
                 <thead>
                     <tr>

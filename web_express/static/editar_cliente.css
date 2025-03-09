@@ -140,7 +140,7 @@ legend {
 .client-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 1px;
     background: white;
     border-radius: 8px;
     overflow: hidden;
